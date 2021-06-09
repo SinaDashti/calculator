@@ -1,0 +1,112 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: cursive;
+  
+}
+body{
+    background-color: rgb(241, 239, 239);
+}
+main{
+    margin-top: 50px;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+    align-self: center;
+    
+}
+.container{
+    display: grid;
+    width: 400px;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(1,1fr);
+}
+
+.display{
+    display: grid;
+    width: 400px;
+    height: 180px;
+    grid-template-columns: 1fr;
+    background-color: white;
+    grid-template-rows: repeat(3,1fr);
+    border: rgb(248, 245, 245) 1px solid;
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+}
+
+[class^="display-"]{
+    display: grid;
+    /* justify-content: end; */
+    align-items: center;
+    border-bottom: rgb(248, 245, 245) 1px solid;
+    width: 400px;
+    height: 60px;
+}
+
+.display-down{
+    justify-content: end;
+    font-size: 42px; 
+}
+
+
+
+
+
+.operations{
+    display: grid;
+    width: 400px;
+    grid-template-columns: repeat(4,1fr);
+    grid-template-rows: repeat(6,1fr);
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+}
+
+[class^="cell-"]{
+    margin: 0;
+    font-size: xx-large;
+    font-weight: bold;
+    display: grid;
+    width:100px;
+    height: 100px;
+    border: rgb(248, 245, 245) 1px solid;
+    text-align: center;
+    align-items: center;
+}
+
+[class^="cell-"]:hover{
+    transform: scale(1.03);
+}
+
+[class^="cell-"]:active{
+    transform: scale(0.98);
+    color: rgb(255, 255, 255);
+}
+
+#number,
+.dot,
+.plus-minus{
+    background-color: rgb(196, 190, 189);
+}
+
+.equal{
+    background-color: rgb(112, 250, 209);
+}
+
+.add,
+.sub,
+.mul,
+.div,
+.percent,
+.oneOver,
+.radical,
+.pow2{
+    background-color: rgb(112, 229, 250); 
+}
+
+.reset{
+    background-color: rgb(238, 167, 138);
+}
