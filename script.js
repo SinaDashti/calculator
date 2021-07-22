@@ -22,22 +22,20 @@ let plusMinusButtonStatus = false;
 let currentDisplayedNumber = [];
 let num = [...numberButtons];
 let operators = [...operatorButtons];
-displayDown.innerText = '';
+displayDown.innerText = '0';
 let lastOperation = '';
-
 let calculationObject = {
     result: '',
     firstNumber: '',
     secondNumber: '',
-    isClean: true,
-    isNumber: false,
-    isOperator: false,
-    isReset: false,
-    isSign: false,
-    firstOperation: '',
-    secondOperation: '',
     lastOperation: '',
-    needsTwoNumber: true
+    reset: function(){
+        this.result = '';
+        this.firstNumber = '';
+        this.secondNumber = '';
+        this.lastOperation = '';
+        currentDisplayedNumber = [];
+    }
 };
 const CorrectDisplayFunction = () => {
     if (displayDown.innerText.length < 40) {
@@ -57,6 +55,12 @@ const updateDisplay = () => {
 const undoAction = () => {
     currentDisplayedNumber.pop();
     updateDisplay();
+    // console.log('d', displayDown.innerText.length, 'c', currentDisplayedNumber.length);
+}
+
+const clearHistory = () => {
+    [currentHistoryUp.innerText, currentHistoryMid.innerText, currentHistoryDown.innerText] = ['', '', ''];
+    
 }
 
 const clearScreanAction = () => {
@@ -65,20 +69,18 @@ const clearScreanAction = () => {
     updateDisplay();
 }
 
-const addRemoveMinusSign = (pMButtonStatus) => {
-    if (!pMButtonStatus && currentDisplayedNumber.length > 0) currentDisplayedNumber.splice(0, 0, "-");
-    else currentDisplayedNumber.shift();
-}
-
-const updateDisplayBasedOnSign = (pMButtonStatus) => {
-    updateDisplay();
-    return !pMButtonStatus;
+const startAction = () => {
+    calculationObject.reset();
+    clearScreanAction();
+    clearHistory();
 }
 
 
 const plusMinusAction = () => {
-    addRemoveMinusSign(plusMinusButtonStatus);
-    plusMinusButtonStatus = updateDisplayBasedOnSign(plusMinusButtonStatus);
+    let check = new Big(currentDisplayedNumber.join(''));
+    if(!check.lt(Big(0)) && currentDisplayedNumber.length > 0) currentDisplayedNumber.splice(0, 0, "-");
+    else currentDisplayedNumber.shift();
+    updateDisplay();
 }
 
 const addPeriod = () => {
@@ -102,25 +104,75 @@ arrowButton.addEventListener('click', undoAction);
 plusMinusButton.addEventListener('click', plusMinusAction)
 dotButton.addEventListener('click', addPeriod);
 clearScreenButton.addEventListener('click', clearScreanAction);
-
+startButton.addEventListener('click', startAction)
+const needsOneNumber = (op) => {
+    return ['pow2', 'radical', 'oneOver', 'percent'].includes(op)
+}
 
 const plus = (num1, num2) => {
-    return num1.plus(num2).round(4).valueOf();
+    // return num1.plus(num2).valueOf();
+    if(num1.plus(num2).valueOf().length > 20) return num1.plus(num2).toPrecision(4);
+    else return num1.plus(num2).valueOf();
 }
 const sub = (num1, num2) => {
-    return num1.minus(num2).valueOf();
+    // return num1.minus(num2).valueOf();
+    if(num1.minus(num2).valueOf().length > 20) return num1.minus(num2).toPrecision(4);
+    else return num1.minus(num2).valueOf();
 }
 const mul = (num1, num2) => {
-    return num1.times(num2).valueOf();
+    // return num1.times(num2).valueOf();
+    if(num1.times(num2).valueOf().length > 20) return num1.times(num2).toPrecision(4);
+    else return num1.times(num2).valueOf();
 }
 const divide = (num1, num2) => {
-    return num1.div(num2).round(4).valueOf();
+    if(num2.valueOf() !== '0') {
+        if(num1.div(num2).valueOf().length > 20) return num1.div(num2).toPrecision(4);
+        else return num1.div(num2).valueOf();
+    }  
+    else{
+        setTimeout(()=>{
+            displayDown.innerText = 'Cannot divide by zero!';
+            CorrectDisplayFunction();
+        }, 0);
+        setTimeout(()=>startAction(), 1500);
+        return '';
+    }
+}
+
+const pow2 = (num1) => {
+    // setTimeout(()=>{
+    //     CorrectDisplayFunction();
+    // }, 500)
+    if(num1.pow(2).valueOf().length > 20) return num1.pow(2).toPrecision(4);
+    else return num1.pow(2).valueOf();
+}
+const radical = (num1) => {
+    if(!num1.lt(Big(0))) {
+        if(num1.sqrt().valueOf().length > 20) return num1.sqrt().toPrecision(4);
+        else  return num1.sqrt().valueOf();
+    }  
+    else{
+        setTimeout(()=>{
+            displayDown.innerText = 'Invalid input!';
+            CorrectDisplayFunction();
+        }, 0);
+        setTimeout(()=>startAction(), 1500);
+        return '';
+    }
+}
+const oneOver = (num1) => {
+    let num2 = new Big('1')
+    return divide(num2, num1);
+}
+const percent = (num1) => {
+    let num2 = new Big('100')
+    return divide(num1, num2);
 }
 const equal = () => {
     return calculationObject.result;
 }
 
-const getResult = (selectedOperator, num1, num2) => {
+const getResult = (selectedOperator, num1, num2='0') => {
     switch (selectedOperator) {
         case 'plus':
             return plus(num1, num2);
@@ -130,6 +182,14 @@ const getResult = (selectedOperator, num1, num2) => {
             return mul(num1, num2);
         case 'divide':
             return divide(num1, num2);
+        case 'pow2':
+            return pow2(num1);
+        case 'radical':
+            return radical(num1);
+        case 'oneOver':
+            return oneOver(num1);
+        case 'percent':
+            return percent(num1);
         case 'equal':
             return equal();
         default:
@@ -138,19 +198,29 @@ const getResult = (selectedOperator, num1, num2) => {
 }
 
 allOperations.addEventListener('click', function (e) {
+    if(e.target.id == 'start') clearScreanAction();
     arrowButton.disabled = false;
     plusMinusButton.disabled = false;
     if (!calculationObject.firstNumber && !calculationObject.secondNumber) {
-        CorrectDisplayFunction();
         if (e.target.className.includes('operator') && currentDisplayedNumber.length > 0) {
             calculationObject.firstNumber = currentDisplayedNumber.join('');
             allOperations.setAttribute('value', 'off');
+            plusMinusButton.disabled = true;
             currentHistoryUp.innerText = calculationObject.firstNumber;
             // newLine1.appendChild(br);
             // newLine2.appendChild(br);
             currentHistoryMid.innerText = e.target.innerText;
             // currentHistoryDown.innerText = '';
             calculationObject.lastOperation = e.target.id;
+            // console.log(needsOneNumber(calculationObject.lastOperation));
+            if(needsOneNumber(calculationObject.lastOperation)){
+                let num1 = new Big(calculationObject.firstNumber)
+                // let num2 = new Big(calculationObject.secondNumber)
+                calculationObject.result = getResult(calculationObject.lastOperation, num1);
+                displayDown.innerText = calculationObject.result;
+                CorrectDisplayFunction()
+                // calculationObject.firstNumber = calculationObject.result;
+            }
             currentDisplayedNumber = [];
         }
     } else if (calculationObject.firstNumber && !calculationObject.secondNumber) {
@@ -190,20 +260,29 @@ allOperations.addEventListener('click', function (e) {
         console.log('new calculation', calculationObject.secondNumber);
     }
     if (calculationObject.result && !calculationObject.secondNumber && e.target.className.includes('operator')) {
+        console.log('here');
         arrowButton.disabled = true;
         plusMinusButton.disabled = true;
+        if(needsOneNumber(calculationObject.lastOperation)){
+            let num1 = new Big(calculationObject.firstNumber)
+            // let num2 = new Big(calculationObject.secondNumber)
+            console.log('here I am');
+            calculationObject.result = getResult(calculationObject.lastOperation, num1);
+            displayDown.innerText = calculationObject.result;
+            CorrectDisplayFunction()
+            // [calculationObject.firstNumber, calculationObject.secondNumber] = [calculationObject.result, ''];
+        }
         [calculationObject.firstNumber, calculationObject.secondNumber] = [calculationObject.result, ''];
-        
         //     // console.log(calculationObject.firstNumber, calculationObject.secondNumber);
         //     currentHistoryUp.innerText = calculationObject.result;
         //     currentHistoryMid.innerText = calculationObject.lastOperation;
         //     // // currentHistoryDown.innerText = '';
     }
 
+
 })
 
-// console.log('5677999999999999999999999999999999999999999999999'.length)
-// console.log('9.999999999999999025625000000000000000974365e+36'.length)
 
-
-
+// display update after very big numbers
+// refactor the part of precision
+// history

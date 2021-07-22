@@ -3,8 +3,8 @@
   padding: 0;
   box-sizing: border-box;
   /* font-family: cursive; */
-  /* font-family: -apple-system, cursive, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; */
+  /* font-family: -apple-system, cursive, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; */
 }
 body {
   background-color: rgb(241, 239, 239);
@@ -40,6 +40,7 @@ main {
 
 [class^="display-"] {
   display: grid;
+  /* justify-content: end; */
   align-items: center;
   border-bottom: rgb(248, 245, 245) 1px solid;
   width: 300px;
