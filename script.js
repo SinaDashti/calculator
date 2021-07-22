@@ -73,6 +73,7 @@ const startAction = () => {
     calculationObject.reset();
     clearScreanAction();
     clearHistory();
+    setTimeout(()=> displayDown.innerText += '0', 10);
 }
 
 
